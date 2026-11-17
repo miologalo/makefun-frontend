@@ -1,0 +1,172 @@
+:root {
+  --ink: #16181d;
+  --muted: #5b6470;
+  --line: #e3e6ea;
+  --link: #0b5cad;
+  --accent: #0b5cad;
+  --chip: #eef4fb;
+  --good: #137a3f;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0 auto;
+  max-width: 1020px;
+  padding: 0 16px 64px;
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: #fff;
+}
+
+header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0 14px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.brand span { color: var(--accent); font-weight: 600; }
+
+nav a {
+  margin-left: 18px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a { color: var(--link); }
+a:hover { text-decoration: underline; }
+
+h1 { font-size: 26px; margin: 22px 0 12px; line-height: 1.25; }
+h2 { font-size: 19px; margin: 26px 0 10px; }
+
+.muted { color: var(--muted); }
+.loading, .error { padding: 32px 0; color: var(--muted); }
+.error { color: #a11; }
+.empty { color: var(--muted); padding: 16px 0; }
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.controls input[type="search"] {
+  flex: 1 1 220px;
+  min-width: 180px;
+  padding: 9px 12px;
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.controls select, .controls button, .pager button {
+  padding: 9px 12px;
+  font: inherit;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.controls button:disabled, .pager button:disabled { opacity: .45; cursor: default; }
+
+.board { list-style: none; padding: 0; margin: 0; }
+
+.board li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 7.5em 6em 8em 7.5em 8em;
+  gap: 12px;
+  align-items: baseline;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.board li.closed { opacity: .6; }
+.board .title { font-weight: 650; overflow-wrap: anywhere; }
+.board .pot { font-weight: 700; text-align: right; }
+.board .fee, .board .left, .board .entries, .board .cat { text-align: right; color: var(--muted); font-size: 14px; }
+.board .left.ended { color: #a11; }
+.board .cat {
+  text-align: left;
+  background: var(--chip);
+  border-radius: 999px;
+  padding: 2px 10px;
+  justify-self: start;
+  white-space: nowrap;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 18px 0;
+  color: var(--muted);
+}
+
+.crumb { margin: 18px 0 0; color: var(--muted); }
+.summary { font-size: 18px; color: #2a2f37; }
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 20px;
+  padding: 14px 16px;
+  margin: 16px 0;
+  background: #f7f8fa;
+  border-radius: 10px;
+}
+
+.facts dt { font-weight: 650; }
+.facts dd { margin: 0; }
+
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+th { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+td:first-child, th:first-child { padding-left: 0; }
+.rewards td:nth-child(2), .lb td:nth-child(4) { font-weight: 650; }
+
+.description { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.profile-head { display: flex; gap: 18px; align-items: flex-start; margin-top: 22px; }
+.profile-head img { border-radius: 50%; flex: none; }
+.profile-head h1 { margin: 0 0 4px; }
+
+.solutions { list-style: none; padding: 0; }
+.solutions li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 8em 6em;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.solutions span { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+
+footer {
+  margin-top: 40px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+@media (max-width: 760px) {
+  h1 { font-size: 22px; }
+  .board li { grid-template-columns: minmax(0, 1fr) 7em; grid-auto-rows: auto; }
+  .board .fee, .board .left, .board .entries { text-align: left; }
+  .board .cat { grid-column: 1 / -1; }
+  .solutions li { grid-template-columns: minmax(0, 1fr) 8em; }
+  .profile-head { flex-direction: column; }
+  table { display: block; overflow-x: auto; }
+}
