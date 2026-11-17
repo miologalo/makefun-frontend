@@ -1,42 +1,62 @@
-// make.fun's public API: read-only GET requests, open to any origin (CORS).
-// The full API is described at https://make.fun/api/openapi.json.
+// make.fun's public API, read-only GET, open to any origin (CORS).
+// Full API description: https://make.fun/api/openapi.json
+// Agent docs: https://make.fun/llms.txt
 //
-// One request per view, cached: each answer is kept in memory for 60 seconds,
-// and revalidated with the ETag the API binds to the minute (If-None-Match
-// answers 304 within the minute, so a revisit costs no fresh body).
+// One request per view. Answers are kept in memory for 60 seconds and
+// revalidated with the ETag the API binds to the minute: an
+// If-None-Match inside the same minute answers 304, so revisiting a view
+// within the minute costs no fresh body.
 
 const API = 'https://make.fun/api';
-const TTL = 60000;
+const CACHE_TTL_MS = 60_000;
 
+// path -> { body, fetchedAt, etag }
 const cache = new Map();
 
-async function get(path) {
+/** Fetch one API path as JSON, using the in-memory cache + ETag revalidation. */
+async function fetchJson(path) {
   const now = Date.now();
   const hit = cache.get(path);
-  if (hit && now - hit.at < TTL) return hit.body;
-  const headers = {};
-  if (hit && hit.etag) headers['If-None-Match'] = hit.etag;
+  if (hit && now - hit.fetchedAt < CACHE_TTL_MS) return hit.body;
+
+  const headers = hit?.etag ? { 'If-None-Match': hit.etag } : {};
   const res = await fetch(API + path, { headers });
+
+  // The API says nothing changed this minute: keep the cached body, fresh.
   if (res.status === 304 && hit) {
-    hit.at = now;
+    hit.fetchedAt = now;
     return hit.body;
   }
+  if (!res.ok) throw new Error(`make.fun API ${res.status} for ${path}`);
+
   const body = await res.json();
-  cache.set(path, { body, at: now, etag: res.headers.get('etag') });
+  cache.set(path, { body, fetchedAt: now, etag: res.headers.get('etag') });
   return body;
 }
 
-/** The open bounties: { items: [...] } (activity=times leaves out the activity a board does not show). */
-export const getBounties = () => get('/competitions?status=open&activity=times');
+const enc = (s) => encodeURIComponent(s);
+
+/** The open bounties: { items: [...] }. activity=times leaves out the activity a board does not show. */
+export function getBounties() {
+  return fetchJson('/competitions?status=open&activity=times');
+}
 
 /** The closed bounties, fetched only when the board asks for them. */
-export const getClosedBounties = () => get('/competitions?status=closed&activity=times');
+export function getClosedBounties() {
+  return fetchJson('/competitions?status=closed&activity=times');
+}
 
 /** One bounty, by its slug. */
-export const getBounty = (slug) => get(`/competitions/${encodeURIComponent(slug)}`);
+export function getBounty(slug) {
+  return fetchJson(`/competitions/${enc(slug)}`);
+}
 
 /** One bounty's leaderboard: { competition, phase, columns, entries }. */
-export const getLeaderboard = (slug) => get(`/competitions/${encodeURIComponent(slug)}/leaderboard`);
+export function getLeaderboard(slug) {
+  return fetchJson(`/competitions/${enc(slug)}/leaderboard`);
+}
 
 /** An account's public profile: { handle, record, solutions, ... }. */
-export const getProfile = (handle) => get(`/profiles/${encodeURIComponent(handle)}`);
+export function getProfile(handle) {
+  return fetchJson(`/profiles/${enc(handle)}`);
+}
